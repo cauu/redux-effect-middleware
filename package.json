@@ -1,0 +1,27 @@
+{
+  "name": "redux-effect-middleware",
+  "version": "1.0.0",
+  "description": "A react-redux middleware to handle async api calling",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cauu/redux-effect-middleware.git"
+  },
+  "keywords": [
+    "react",
+    "redux",
+    "async",
+    "side-effect",
+    "api",
+    "middleware"
+  ],
+  "author": "Martin Tsai",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cauu/redux-effect-middleware/issues"
+  },
+  "homepage": "https://github.com/cauu/redux-effect-middleware#readme"
+}
