@@ -1,4 +1,5 @@
 import { validateAction } from '../validations';
+import Http from '../http';
 
 import Factory from './factory';
 
@@ -56,6 +57,32 @@ export default class ApiCaller {
       } = action
 
       return new Promise((resolve, reject) => {
+        new Http()[method.toLowerCase()]({ url, query, data })
+          .then((resp) => {
+            if(_.isFunction(afterSuccess)) {
+              afterSuccess(resp, store);
+            }
+
+            successType && dispatch({
+              type: successType,
+              payload: Object.assign({}, resp, meta)
+            });
+            /**@todo dispatch event */
+            resolve(resp);
+          })
+          .catch((error) => {
+            if(_.isFunction(afterError)) {
+              afterError(resp, store);
+            }
+
+            errorType && dispatch({
+              type: errorType,
+              payload: error
+            });
+            /**@todo dispatch error */
+            reject(error);
+          })
+        ;
       });
     };
   }

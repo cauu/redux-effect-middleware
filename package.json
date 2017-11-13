@@ -23,5 +23,9 @@
   "bugs": {
     "url": "https://github.com/cauu/redux-effect-middleware/issues"
   },
-  "homepage": "https://github.com/cauu/redux-effect-middleware#readme"
+  "homepage": "https://github.com/cauu/redux-effect-middleware#readme",
+  "dependencies": {
+    "axios": "^0.17.0",
+    "lodash": "^4.17.4"
+  }
 }
