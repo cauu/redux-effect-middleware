@@ -56,8 +56,8 @@ export default class ApiCaller {
         return Promise.reject(new Error());
       }
 
-      if(!!Factory.create(action, store)) {
-        return Factory.create(action, store).call();
+      if(!!Factory.create(action, store, canDispatch)) {
+        return Factory.create(action, store, canDispatch).call();
       }
 
       const {
