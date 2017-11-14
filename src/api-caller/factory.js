@@ -5,16 +5,22 @@ import CallApi from './call';
 import ChainApi from './chain';
 
 class ApiCallerFactory {
-  static create(action, store) {
+  static create(action, store, canDispatch) {
     if(!action) return;
 
+    let callFunc = CallApi;
+
     if(action[CALL_API]) {
-      return new ParallelApi(action, store);
+      callFunc = CallApi;
     } else if(action[CHAIN_API]) {
-      return new ChainApi(action, store);
+      callFunc = ChainApi;
     } else if(action[PARALLEL_API]) {
-      return new ParallelApi(action, store);
+      callFunc = ParallelApi;
+    } else {
+      return null;
     }
+
+    return new callFunc(action, store, canDispatch);
   }
 }
 

@@ -1,6 +1,8 @@
+import _ from 'lodash';
+
+import { DISPATCH_ONCE, DISPATCH_EVERY } from '../constants';
 import { validateAction } from '../validations';
 import Http from '../http';
-
 import Factory from './factory';
 
 /**
@@ -22,17 +24,31 @@ import Factory from './factory';
 export default class ApiCaller {
   action;
   store;
+  type;
+  canDispatch;
 
-  constructor(action, store) {
+  constructor(action, store, canDispatch) {
     this.action = action;
     this.store = store;
+    this.canDispatch = canDispatch;
   }
 
-  _createActionPromise(actionCreator, store) {
+  _createPromiseChain() {
+    const action = this.action[this.type];
+
+    if(_.isArray(action)) {
+      return action.map((creator) => this._createActionPromise(creator));
+    }
+
+    return [this._createActionPromise(action)];
+  }
+
+  _createActionPromise(actionCreator) {
+    const { store, canDispatch } = this;
     const { dispatch } = store;
 
     return (prevBody) => {
-      const action = actionCreator(prevBody);
+      const action = _.isFunction(actionCreator) ? actionCreator(prevBody) : actionCreator;
 
       const validatedErrors = validateAction(action);
 
@@ -54,28 +70,29 @@ export default class ApiCaller {
         errorType,
         afterSuccess,
         afterError,
-      } = action
+      } = action;
 
       return new Promise((resolve, reject) => {
         new Http()[method.toLowerCase()]({ url, query, data })
           .then((resp) => {
             if(_.isFunction(afterSuccess)) {
-              afterSuccess(resp, store);
+              afterSuccess(resp.data, store);
             }
 
-            successType && dispatch({
+            canDispatch && successType && dispatch({
               type: successType,
-              payload: Object.assign({}, resp, meta)
+              payload: Object.assign({}, resp.data, meta)
             });
+
             /**@todo dispatch event */
-            resolve(resp);
+            resolve(resp.data);
           })
           .catch((error) => {
             if(_.isFunction(afterError)) {
-              afterError(resp, store);
+              afterError(resp.data, store);
             }
 
-            errorType && dispatch({
+            canDispatch && errorType && dispatch({
               type: errorType,
               payload: error
             });

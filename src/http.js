@@ -9,7 +9,7 @@ class Http {
       'Content-Type': 'application/json'
     },
     withCredentials: true,
-    timeout: 2500,
+    timeout: 5000,
   };
 
   axiosInstance = null;
@@ -51,12 +51,12 @@ class Http {
     return url;
   }
 
-  get({ url, query, config })  {
+  get({ url, query={}, config={} })  {
     return this.axiosInstance.get(this.__concatUrl(url, query), config);
   }
 
-  post({ url, query, data, config }) {
-    return this.axiosInstance.post(this.__concatUrl(url, query), params);
+  post({ url, query={}, data={} }) {
+    return this.axiosInstance.post(this.__concatUrl(url, query), data);
   }
 }
 
