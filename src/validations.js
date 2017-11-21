@@ -6,4 +6,4 @@ function validateAction(action) {
 
 export {
   validateAction,
-}
+};
