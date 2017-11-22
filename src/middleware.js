@@ -32,30 +32,43 @@ const apiMiddleware = (store) => (next) => (action) => {
     return next(action);
   }
 
+  const { actionType, formatter, callback } = action;
+
+  const [ successType, errorType, loadingType ] = actionType; 
+  const [ successFormatter, errorFormatter ] = formatter;
+  const [ successCb, errorCb, loadingCb ] = callback;
+
+  store.dispatch({
+    type: loadingType
+  });
+
+  loadingCb && loadingCb();
+
   return apiCaller.call()
-    .then((resp) => {
-      /**@todo dispatch success*/
-      console.log(resp);
-      /**@todo 
+    .then((payload) => {
+      /**@desc
        * 如果输出不满足output validation
        * throw new Error
        * */
+      next({
+        type: successType,
+        payload: successFormatter(payload)
+      });
+
+      successCb && successCb(successFormatter(payload));
     })
     .catch((e) => {
       /**
-       * @todo
+       * @desc
        * dispatch error
        * 包括超时、500等错误
       */
-      console.log(e);
-
       next({
-        /**
-         * @todo dispatch错误信息
-         */
-      })
-    })
-    .finally(() => {
+        type: errorType,
+        payload: errorFormatter(e)
+      });
+
+      errorCb && errorCb(errorFormatter(e));
     })
   ;
 }

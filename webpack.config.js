@@ -5,18 +5,21 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: {
-    examples: ['./examples/src/index'],
-    'api-middleware': './src/index.js'
+    examples: ['./examples/src'],
+    'redux-effect-middleware': './src'
   },
   output: {
     path: path.join(__dirname, 'dist'),
     filename: '[name].js',
+    publicPath: '/',
     libraryTarget: 'var',
-    library: 'ReduxEffectMiddleware'
+    library: 'ReduxEffectMiddleware',
   },
   externals: {
     react: 'React',
     'react-dom': 'ReactDOM',
+    'react-redux': 'ReactRedux',
+    'redux': 'Redux',
     'redux-effect-middleware': 'ReduxEffectMiddleware'
   },
   module: {
@@ -31,6 +34,8 @@ module.exports = {
       template: './examples/index.html',
       filename: 'index.html',
       inject: false
-    })
-  ]
+    }),
+    new webpack.HotModuleReplacementPlugin()
+  ],
+  devServer: { inline: true }
 };
