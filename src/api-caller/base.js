@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 import { DISPATCH_ONCE, DISPATCH_EVERY } from '../constants';
-import { validateAction } from '../validations';
+import { validateAction, validateRequest } from '../validations';
 import Http from '../http';
 import Factory from './factory';
 
@@ -19,6 +19,7 @@ import Factory from './factory';
  *  afterSuccess,
  *  afterError,
  *  payload -> meta
+ *  config -> same as axios config
  * }
  */
 export default class ApiCaller {
@@ -53,11 +54,13 @@ export default class ApiCaller {
       const validatedErrors = validateAction(action);
 
       if(validatedErrors.length) {
-        return Promise.reject(new Error());
+        return Promise.reject(validatedErrors);
       }
 
       if(!!Factory.create(action, store, canDispatch)) {
         return Factory.create(action, store, canDispatch).call();
+      } else if(validateRequest(action.length)) {
+        return Promise.reject(validateRequest(action));
       }
 
       const {
@@ -70,11 +73,17 @@ export default class ApiCaller {
         errorType,
         afterSuccess,
         afterError,
+        isErrorResp,
+        config
       } = action;
 
       return new Promise((resolve, reject) => {
-        new Http()[method.toLowerCase()]({ url, query, data })
+        new Http()[method.toLowerCase()]({ url, query, data }, config)
           .then((resp) => {
+            if(isErrorResp && isErrorResp(resp)) {
+              throw new isErrorResp(resp);
+            }
+
             if(_.isFunction(afterSuccess)) {
               afterSuccess(resp.data, store);
             }
@@ -89,7 +98,7 @@ export default class ApiCaller {
           })
           .catch((error) => {
             if(_.isFunction(afterError)) {
-              afterError(resp.data, store);
+              afterError(error, store);
             }
 
             canDispatch && errorType && dispatch({

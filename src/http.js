@@ -52,12 +52,12 @@ class Http {
     return url;
   }
 
-  get({ url, query={}, config={} })  {
+  get({ url, query={} }, config)  {
     return this.axiosInstance.get(this.__concatUrl(url, query), config);
   }
 
-  post({ url, query={}, data={} }) {
-    return this.axiosInstance.post(this.__concatUrl(url, query), data);
+  post({ url, query={}, data={} }, config) {
+    return this.axiosInstance.post(this.__concatUrl(url, query), data, config);
   }
 }
 

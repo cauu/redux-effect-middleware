@@ -16,7 +16,8 @@ const AppService = {
       [CHAIN_API]: [
         () => ({
           method: 'get',
-          url: MOCK_API
+          url: MOCK_API,
+          test: 'eerror'
         })
       ],
       actionType: ['INIT_SUCCESS', 'INIT_ERROR', 'LOADING'],
@@ -59,7 +60,7 @@ const AppService = {
 const store = createStore(
   AppService.reducer,
   {},
-  applyMiddleware(apiMiddleware)
+  applyMiddleware(apiMiddleware({ debug: true }))
 );
 
 class App extends React.Component {

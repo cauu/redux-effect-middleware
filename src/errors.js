@@ -8,6 +8,15 @@ function ExtendableBuiltIn(cls){
   return buildIn;
 }
 
+export class InvalidActionError extends ExtendableBuiltIn(Error) {
+  constructor(message) {
+    super(message);
+
+    this.name = this.constructor.name;
+    this.message = message;
+  }
+}
+
 export class InternetError extends ExtendableBuiltIn(Error) {
   constructor(message) {
     super(message);

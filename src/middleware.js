@@ -1,9 +1,11 @@
 import { validateAction } from './validations';
 import { DISPATCH_ONCE, DISPATCH_EVERY } from './constants';
 
+import { InvalidActionError } from './errors';
+
 import ApiCallerFactory from './api-caller/factory';
 
-const apiMiddleware = (store) => (next) => (action) => {
+const apiMiddleware = ({ debug=false }) => (store) => (next) => (action) => {
   /**
    * 1. validate action;
    * 2. create action promise;
@@ -11,14 +13,21 @@ const apiMiddleware = (store) => (next) => (action) => {
    * 4. call action
    * 5. 错误处理
    */
+  const { actionType } = action;
+
+  const [ successType, errorType ] = actionType; 
 
   const validatedErros = validateAction(action);
 
   if(validatedErros.length) {
+    debug && console.error(new InvalidActionError(validatedErros));
+
     return next({
       /**
        * @todo dispatch错误信息
        */
+      type: errorType || InvalidActionError.name,
+      payload: new InvalidActionError(validatedErros)
     });
   }
 
@@ -32,17 +41,13 @@ const apiMiddleware = (store) => (next) => (action) => {
     return next(action);
   }
 
-  const { actionType, formatter, callback } = action;
+  const { formatter=[], callback=[], hooker=[] } = action;
 
-  const [ successType, errorType, loadingType ] = actionType; 
+  const [ onEnter, onLeave ] = hooker;
   const [ successFormatter, errorFormatter ] = formatter;
-  const [ successCb, errorCb, loadingCb ] = callback;
+  const [ successCb, errorCb ] = callback;
 
-  store.dispatch({
-    type: loadingType
-  });
-
-  loadingCb && loadingCb();
+  onEnter && onEnter();
 
   return apiCaller.call()
     .then((payload) => {
